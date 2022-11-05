@@ -1,69 +1,47 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import Carousel from "./components/Carousel.svelte";
-  import type { TCarouselItem } from "./components/Carousel.svelte";
-
-  let photos: TCarouselItem[] = [];
-
-  let clientWidth = 0;
-  const isMobilePortrait = (value: number) => value < 500;
-  const isMobileLandscape = (value: number) => value >= 500 && value < 800;
-  const isTablet = (value: number) => value >= 800 && value < 1024;
-  const isDesktop = (value: number) => value >= 1024;
-  const isLargeDesktop = (value: number) => value >= 1440;
-  const isExtraLargeDesktop = (value: number) => value >= 1920;
+  import { photos } from "./mock/images";
+  import { Device } from "./utils/device";
 
   let width = 0;
   let marginBlock = 0;
-  $: {
-    if (isMobilePortrait(clientWidth)) {
-      width = 100;
-      marginBlock = 15;
-    }
 
-    if (isMobileLandscape(clientWidth)) {
-      width = 150;
-      marginBlock = 30;
-    }
+  Device.Subscribe(({ executeIf }) => {
+    executeIf({
+      isMobilePortrait: () => {
+        width = 100;
+        marginBlock = 15;
+      },
 
-    if (isTablet(clientWidth)) {
-      width = 200;
-      marginBlock = 50;
-    }
+      isMobileLandscape: () => {
+        width = 150;
+        marginBlock = 30;
+      },
 
-    if (isDesktop(clientWidth)) {
-      width = 250;
-      marginBlock = 70;
-    }
+      isTablet: () => {
+        width = 200;
+        marginBlock = 50;
+      },
 
-    if (isLargeDesktop(clientWidth)) {
-      width = 300;
-      marginBlock = 100;
-    }
+      isDesktop: () => {
+        width = 250;
+        marginBlock = 70;
+      },
 
-    if (isExtraLargeDesktop(clientWidth)) {
-      width = 350;
-      marginBlock = 150;
-    }
-  }
+      isDesktopLarge: () => {
+        width = 300;
+        marginBlock = 100;
+      },
 
-  onMount(() => {
-    fetch(
-      "https://api.unsplash.com/search/photos?client_id=" +
-        import.meta.env.VITE_UNSPLASH_KEY +
-        "&page=1&query=office"
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        photos = data.results.map((photo: any) => ({
-          image: photo?.urls?.regular || "https://picsum.photos/200/300",
-          alt: photo?.alt_description || "Office",
-        }));
-      });
+      isDesktopExtraLarge: () => {
+        width = 350;
+        marginBlock = 150;
+      },
+    });
   });
 </script>
 
-<main bind:clientWidth>
+<main>
   <h1>3D GALLERY</h1>
 
   <Carousel {photos} itemWidth={width} {marginBlock} />
